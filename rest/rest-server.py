@@ -59,30 +59,13 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.DEBUG)
 
 
-
-@app.route('/api/openprice', methods=[ 'POST'])
-def analyze():
-    r = request 
-    message = json.loads(r.data)
-    print(message)
-    #message = message['stockname']
-    #print(message[0])
-    stockName =  message['stockName']
-    print("stock name: ", stockName)
-    
-    rabbitMQChannel.basic_publish(
-        exchange='toworker', routing_key=toWorkerKey, body=str(message))
-
-    # Waiting for StockPrediction model to load the result to Redis database.    
-    time.sleep(75)
-    #redis_response = "{'date': '2021-12-02', 'result': '778.45'}"
-    #redis_response.add("{'date': '2021-12-02', 'result': '778.45'}")
+def get_data(stockName):
     redis_response = (redisClient.smembers(stockName))
     print("Type of redis_response: ", type(redis_response))
     redis_response1 = list(redis_response)
     print("Type of redis_response1: ", type(redis_response1))
 
-    response = {'SBI' : '481' }
+    response = {}
     currentDate = date.today()
     for x in redis_response1 :
         print("set elements type: ", type(x))
@@ -94,6 +77,30 @@ def analyze():
         if(str(currentDate)  in i):
             response = {"StockName": stockName, "result": i }
             print(response)
+    return response
+
+@app.route('/api/openprice', methods=[ 'POST'])
+def analyze():
+    r = request 
+    message = json.loads(r.data)
+    print(message)
+    #message = message['stockname']
+    #print(message[0])
+    stockName =  message['stockName']
+    print("stock name: ", stockName)
+    
+    response = get_data(stockName)
+    if(response):
+        rabbitMQChannel.basic_publish(
+            exchange='toworker', routing_key=toWorkerKey, body=str(message))
+    else:
+
+        # Waiting for StockPrediction model to load the result to Redis database.    
+        time.sleep(75)
+        #redis_response = "{'date': '2021-12-02', 'result': '778.45'}"
+        #redis_response.add("{'date': '2021-12-02', 'result': '778.45'}")
+        response = get_data(stockName)
+    
   
     response_pickled = jsonpickle.encode(response)
     return Response(response=response_pickled, status=200, mimetype="application/json")
