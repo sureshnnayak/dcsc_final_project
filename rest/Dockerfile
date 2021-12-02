@@ -7,7 +7,7 @@ COPY rest-server-all.py /srv
 
 
 #ENV	FLASK_PORT 5000
-ENV FLASK_APP=rest-server-all.py
+ENV FLASK_APP=rest-server.py
 EXPOSE 5000
 
-CMD	["python3", "rest-server-all.py"]
+CMD	["python3", "rest-server.py"]
