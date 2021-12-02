@@ -1,0 +1,9 @@
+RabbitMQ:
+1) docker run -d --hostname my-rabbit --name some-rabbit -p 5672:5672 rabbitmq:3
+2) pip3 install pika
+
+Redis:
+1) docker pull redis
+2) docker run -d -p 6379:6379 --name redis-server redis
+3) pip3 install redis
+
