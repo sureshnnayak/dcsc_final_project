@@ -80,7 +80,7 @@ def get_data(stockName):
     return response
 
 @app.route('/api/openprice', methods=[ 'POST'])
-def analyze():
+def openprice():
     r = request 
     message = json.loads(r.data)
     print(message)
@@ -90,11 +90,12 @@ def analyze():
     print("stock name: ", stockName)
     
     response = get_data(stockName)
-    if(response):
+    if response :
+        print("Elenemt found")
+  
+    else:
         rabbitMQChannel.basic_publish(
             exchange='toworker', routing_key=toWorkerKey, body=str(message))
-    else:
-
         # Waiting for StockPrediction model to load the result to Redis database.    
         time.sleep(75)
         #redis_response = "{'date': '2021-12-02', 'result': '778.45'}"
