@@ -10,8 +10,9 @@ import jsonpickle
 import logging
 import codecs
 import time
+from datetime import date 
 
-
+"""
 ##
 ## Configure test vs. production
 ##
@@ -50,7 +51,7 @@ def log_info(message, key=infoKey):
     rabbitMQChannel.basic_publish(
         exchange='logs', routing_key=key, body=message)
 
-
+"""
 # Initialize the Flask application
 app = Flask(__name__)
 
@@ -66,20 +67,32 @@ def analyze():
     print(message)
     #message = message['stockname']
     #print(message[0])
+    stockName =  message['stockName']
+    """
     rabbitMQChannel.basic_publish(
         exchange='toworker', routing_key=toWorkerKey, body=message)
+    """
+    #redis_response = "{'date': '2021-12-02', 'result': '778.45'}"
+    redis_response = set()
+    redis_response.add("{'date': '2021-12-02', 'result': '778.45'}")
+    #redis_response.add(redisClient.smembers(stockName))
+
+    response = {'SBI' : '481' }
+    currentDate = date.today()
+    for i in redis_response :
+        print("in loop")
+        print(i)
+        print(redis_response)
+        if(str(currentDate)  in i):
+            response = {"StockName": stockName, "result": i }
+            print(response)
     
      
 
   
-    response = {'SBI' : '481' }
+  
     response_pickled = jsonpickle.encode(response)
     return Response(response=response_pickled, status=200, mimetype="application/json")
-
-
-@app.route('/', methods=['GET'])
-def hello():
-    return Response(response='<h1> Sentiment Server</h1><p> Use a valid endpoint </p>', status=200)
 
 
 # start flask app
