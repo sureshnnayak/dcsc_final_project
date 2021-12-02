@@ -11,7 +11,7 @@ import logging
 import codecs
 import time
 
-
+"""
 ##
 ## Configure test vs. production
 ##
@@ -36,16 +36,16 @@ rabbitMQ = pika.BlockingConnection(
 rabbitMQChannel = rabbitMQ.channel()
 rabbitMQChannel.exchange_declare(exchange='logs', exchange_type='topic')
 rabbitMQChannel.exchange_declare(exchange='toworker', exchange_type='direct')
-
+"""
 # Initialize the Flask application
 app = Flask(__name__)
-
+"""
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.DEBUG)
+"""
 
 
-
-@app.route('/apiv1/analyze', methods=[ 'POST'])
+@app.route('/api/openprice', methods=[ 'POST'])
 def analyze():
     r = request 
     message = json.loads(r.data)
@@ -55,91 +55,19 @@ def analyze():
     toWorkerKey = "sentimentanalysis"
     for m in message:
         #logging info to rabbitmq
-        rabbitMQChannel.basic_publish(
-            exchange='logs', routing_key=infoKey, body="/apiv1/analyze attempted for sentence " + str(m))
+        #rabbitMQChannel.basic_publish(
+        #    exchange='logs', routing_key=infoKey, body="/apiv1/analyze attempted for sentence " + str(m))
 
-        rabbitMQChannel.basic_publish(
-            exchange='toworker', routing_key=toWorkerKey, body=m)
+        #rabbitMQChannel.basic_publish(
+        #    exchange='toworker', routing_key=toWorkerKey, body=m)
         print(" [x] Sent %r:%r" % (toWorkerKey, m))
-        time.sleep(3)
+        #time.sleep(3)
         
     response = {'action' : 'queued' }
     response_pickled = jsonpickle.encode(response)
     return Response(response=response_pickled, status=200, mimetype="application/json")
 
 
-@app.route('/apiv1/cache/sentiment', methods=[ 'GET'])
-def cache():
-    #logging info to rabbitmq
-    rabbitMQChannel.basic_publish(
-            exchange='logs', routing_key=infoKey, body="/apiv1/cache attempted " )
-    print("cache end point:")
-
-    try:
-        print("entered try block")
-        sentiment =  "sentiment_analysis_results"
-        response = redisClient.smembers(sentiment)
-        print(response)
-        response1 = list(response)
-        res2 = []
-        for x in response1:
-            res3 = codecs.decode(x)
-            res2.append(res3)
-        #response2 = codecs.decode(response1[0])
-        #logging info to rabbitmq
-        rabbitMQChannel.basic_publish(
-            exchange='logs', routing_key=infoKey, body="/apiv1/cache attempt succeeded" )
-    except:
-        #logging info to rabbitmq
-        rabbitMQChannel.basic_publish(
-            exchange='logs', routing_key=infoKey, body="/apiv1/cache query failed")
-
-    #response
-    response = {'model': "sentiment", 'analysis': res2}
-    response_pickled = jsonpickle.encode(response)
-    return Response(response=response_pickled, status=200, mimetype="application/json")
-
-
-@app.route('/apiv1/sentence', methods=[ 'GET'])
-def sentence():
-    message = json.loads(request.data)
-    print(message)
-    sentiment =  "sentiment_analysis_results"
-    message = message['sentences']
-    response = []
-
-    try:
-        for sentence in message:
-            # read from the redis
-            print("entered try block")
-            result = redisClient.smembers(sentiment)
-            print(result)
-            result = list(result)
-            print ("inside Loop")
-            
-            
-            for x in result:
-                y = codecs.decode(x)
-                print(y)
-                if sentence in y:
-                    print("innner loop " + y)
-                    response.append(y)
-        rabbitMQChannel.basic_publish(
-            exchange='logs', routing_key=infoKey, body="/apiv1/sentence: response fetched" + str(sentence))
-    except:
-        rabbitMQChannel.basic_publish(
-            exchange='logs', routing_key=infoKey, body="/apiv1/sentence: error" )
-        
-
-
-    #logging info to rabbitmq
-    rabbitMQChannel.basic_publish(
-            exchange='logs', routing_key=infoKey, body="/apiv1/sentence attempted " )
-
-    #response
-    response = {'model' :  'sentiment', 'analysis' : response }
-    response_pickled = jsonpickle.encode(response)
-    return Response(response=response_pickled, status=200, mimetype="application/json")
 
 
 @app.route('/', methods=['GET'])
@@ -149,7 +77,7 @@ def hello():
 
 # start flask app
 app.run(host="0.0.0.0", port=5000)
-rabbitMQ.close()
+
 ##
 ## Your code goes here..
 ##
