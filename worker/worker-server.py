@@ -14,9 +14,6 @@ import requests
 import time
 
 from datetime import date
-from flair.models import TextClassifier
-from flair.data import Sentence
-
 import numpy as np
 import pandas as pd
 
