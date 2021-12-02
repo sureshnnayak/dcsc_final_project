@@ -170,8 +170,9 @@ def callback(ch, method, properties, body):
     message = body.decode()
     print(" [x] %r:%r" % (method.routing_key, message))
     # push the content to redis
-    stock = message["stockType"]
-    openPrice = message["openPriceCurrentDate"]
+
+    stock = message["stockName"]
+    openPrice = message["price"]
     result = stockPrediction(stock, openPrice)
     print(result)
     resDict = dict()
