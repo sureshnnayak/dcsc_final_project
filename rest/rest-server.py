@@ -50,24 +50,12 @@ def analyze():
     r = request 
     message = json.loads(r.data)
     print(message)
-    message = message['sentences']
+    #message = message['stockname']
     #print(message[0])
-    toWorkerKey = "sentimentanalysis"
-    for m in message:
-        #logging info to rabbitmq
-        #rabbitMQChannel.basic_publish(
-        #    exchange='logs', routing_key=infoKey, body="/apiv1/analyze attempted for sentence " + str(m))
-
-        #rabbitMQChannel.basic_publish(
-        #    exchange='toworker', routing_key=toWorkerKey, body=m)
-        print(" [x] Sent %r:%r" % (toWorkerKey, m))
-        #time.sleep(3)
-        
-    response = {'action' : 'queued' }
+  
+    response = {'SBI' : '481' }
     response_pickled = jsonpickle.encode(response)
     return Response(response=response_pickled, status=200, mimetype="application/json")
-
-
 
 
 @app.route('/', methods=['GET'])
@@ -76,7 +64,7 @@ def hello():
 
 
 # start flask app
-app.run(host="0.0.0.0", port=5000)
+app.run(host="0.0.0.0", port=5001)
 
 ##
 ## Your code goes here..
