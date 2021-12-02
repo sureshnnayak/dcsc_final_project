@@ -82,15 +82,19 @@ def stockPrediction(stockType, currentOpenValue):
     TrainFileName1 = stockType1+".csv"
     TrainFileName2 = stockType2+".csv"
     TrainFileName3 = stockType3+".csv"
+    TrainFileName = "training_data_sample.csv"
     training_data1 = pd.read_csv(TrainFileName1)
     training_data2 = pd.read_csv(TrainFileName2)
     training_data3 = pd.read_csv(TrainFileName3)
+    training_data = pd.read_csv(TrainFileName)
     if(stockType == stockType1):
         training_data = training_data1
     elif(stockType == stockType2):
         training_data = training_data2
     elif(stockType == stockType3):
         training_data = training_data3
+    else:
+        training_data =training_data
 
 
 
