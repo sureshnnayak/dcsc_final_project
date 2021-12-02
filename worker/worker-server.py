@@ -43,9 +43,9 @@ print(f"Connecting to rabbitmq({rabbitMQHost}) and redis({redisHost})")
 ## Set up redis connections
 ##
 db = redis.Redis(host=redisHost, db=1)         
-stockType1 = "abc"
-stockType2 = "pqr"
-stockType3 = "xyz"    
+stockType1 = "SBIN"
+stockType2 = "INFY"
+stockType3 = "TCS"    
 currentDate = date.today()                                                             
 
 ##
@@ -80,7 +80,7 @@ def log_info(message, key=infoKey):
 
 def stockPrediction(stockType, currentOpenValue):
     #setting the training data - There are three types of training data - StockTypes 1,2,3
-    """
+
     TrainFileName1 = stockType1+".csv"
     TrainFileName2 = stockType2+".csv"
     TrainFileName3 = stockType3+".csv"
@@ -89,9 +89,9 @@ def stockPrediction(stockType, currentOpenValue):
     training_data2 = pd.read_csv(TrainFileName2)
     training_data3 = pd.read_csv(TrainFileName3)
     training_data = pd.read_csv(TrainFileName)
-    """
-    TrainFileName = "training_data_sample.csv"
-    training_data = pd.read_csv(TrainFileName)
+    
+    #TrainFileName = "training_data_sample.csv"
+    #training_data = pd.read_csv(TrainFileName)
     if(stockType == stockType1):
         training_data = training_data1
     elif(stockType == stockType2):
@@ -100,8 +100,6 @@ def stockPrediction(stockType, currentOpenValue):
         training_data = training_data3
     else:
         training_data =training_data
-
-
 
     training_data.shape
     training_data = training_data.iloc[:, 1:2]
@@ -120,7 +118,7 @@ def stockPrediction(stockType, currentOpenValue):
 
     #print(x_train.shape)
     #print(y_train.shape)
-    x_train = np.reshape(x_train, (1257, 1, 1))
+    x_train = np.reshape(x_train, (499, 1, 1))
 
     #print(x_train.shape)
 
