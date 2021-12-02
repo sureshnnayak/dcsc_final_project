@@ -12,7 +12,7 @@ import codecs
 import time
 from datetime import date 
 
-"""
+
 ##
 ## Configure test vs. production
 ##
@@ -51,7 +51,7 @@ def log_info(message, key=infoKey):
     rabbitMQChannel.basic_publish(
         exchange='logs', routing_key=key, body=message)
 
-"""
+
 # Initialize the Flask application
 app = Flask(__name__)
 
