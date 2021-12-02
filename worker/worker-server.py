@@ -12,6 +12,7 @@ import hashlib
 import json
 import requests
 import time
+import ast 
 
 from datetime import date
 import numpy as np
@@ -79,6 +80,7 @@ def log_info(message, key=infoKey):
 
 def stockPrediction(stockType, currentOpenValue):
     #setting the training data - There are three types of training data - StockTypes 1,2,3
+    """
     TrainFileName1 = stockType1+".csv"
     TrainFileName2 = stockType2+".csv"
     TrainFileName3 = stockType3+".csv"
@@ -86,6 +88,9 @@ def stockPrediction(stockType, currentOpenValue):
     training_data1 = pd.read_csv(TrainFileName1)
     training_data2 = pd.read_csv(TrainFileName2)
     training_data3 = pd.read_csv(TrainFileName3)
+    training_data = pd.read_csv(TrainFileName)
+    """
+    TrainFileName = "training_data_sample.csv"
     training_data = pd.read_csv(TrainFileName)
     if(stockType == stockType1):
         training_data = training_data1
@@ -138,7 +143,7 @@ def stockPrediction(stockType, currentOpenValue):
     print("Test data: ", real_stock_price)
     #real_stock_price.head()
 
-    inputs = real_stock_price
+    inputs = [[real_stock_price]]
     inputs = mm.transform(inputs)
     #inputs = np.reshape(inputs, (20, 1, 1))
 
@@ -169,10 +174,14 @@ rabbitMQChannel.queue_bind(
 def callback(ch, method, properties, body):
     message = body.decode()
     print(" [x] %r:%r" % (method.routing_key, message))
-    # push the content to redis
-
-    stock = message["stockName"]
-    openPrice = message["price"]
+    # push the content to 
+    msg1 = ast.literal_eval(message)
+    #message = json.loads(message)
+    print("type of message after json loads: ", type(message))
+    stock = msg1["stockName"]
+    print("stock name: ", stock)
+    openPrice = msg1["price"]
+    print("current open price: ", openPrice)
     result = stockPrediction(stock, openPrice)
     print(result)
     resDict = dict()

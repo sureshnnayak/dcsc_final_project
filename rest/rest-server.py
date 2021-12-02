@@ -68,28 +68,32 @@ def analyze():
     #message = message['stockname']
     #print(message[0])
     stockName =  message['stockName']
-    """
+    print("stock name: ", stockName)
+    
     rabbitMQChannel.basic_publish(
-        exchange='toworker', routing_key=toWorkerKey, body=message)
-    """
+        exchange='toworker', routing_key=toWorkerKey, body=str(message))
+
+    # Waiting for StockPrediction model to load the result to Redis database.    
+    time.sleep(75)
     #redis_response = "{'date': '2021-12-02', 'result': '778.45'}"
-    redis_response = set()
-    redis_response.add("{'date': '2021-12-02', 'result': '778.45'}")
-    #redis_response.add(redisClient.smembers(stockName))
+    #redis_response.add("{'date': '2021-12-02', 'result': '778.45'}")
+    redis_response = (redisClient.smembers(stockName))
+    print("Type of redis_response: ", type(redis_response))
+    redis_response1 = list(redis_response)
+    print("Type of redis_response1: ", type(redis_response1))
 
     response = {'SBI' : '481' }
     currentDate = date.today()
-    for i in redis_response :
+    for x in redis_response1 :
+        print("set elements type: ", type(x))
+        i = codecs.decode(x)
         print("in loop")
         print(i)
-        print(redis_response)
+        print("type of set element after codecs.decode: ", type(i))
+        #print(redis_response)
         if(str(currentDate)  in i):
             response = {"StockName": stockName, "result": i }
             print(response)
-    
-     
-
-  
   
     response_pickled = jsonpickle.encode(response)
     return Response(response=response_pickled, status=200, mimetype="application/json")
