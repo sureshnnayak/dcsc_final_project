@@ -11,7 +11,7 @@ import logging
 import codecs
 import time
 
-"""
+
 ##
 ## Configure test vs. production
 ##
@@ -36,13 +36,27 @@ rabbitMQ = pika.BlockingConnection(
 rabbitMQChannel = rabbitMQ.channel()
 rabbitMQChannel.exchange_declare(exchange='logs', exchange_type='topic')
 rabbitMQChannel.exchange_declare(exchange='toworker', exchange_type='direct')
-"""
+
+#routing keys  
+toWorkerKey = "stockPredictionKey"
+infoKey = "hostname.worker.info"
+debugKey = "hostname.worker.debug"
+def log_debug(message, key=debugKey):
+    print("DEBUG:", message, file=sys.stdout)
+    rabbitMQChannel.basic_publish(
+        exchange='logs', routing_key=key, body=message)
+def log_info(message, key=infoKey):
+    print("INFO:", message, file=sys.stdout)
+    rabbitMQChannel.basic_publish(
+        exchange='logs', routing_key=key, body=message)
+
+
 # Initialize the Flask application
 app = Flask(__name__)
-"""
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.DEBUG)
-"""
+
 
 
 @app.route('/api/openprice', methods=[ 'POST'])
@@ -52,6 +66,11 @@ def analyze():
     print(message)
     #message = message['stockname']
     #print(message[0])
+    rabbitMQChannel.basic_publish(
+        exchange='toworker', routing_key=toWorkerKey, body=message)
+    
+     
+
   
     response = {'SBI' : '481' }
     response_pickled = jsonpickle.encode(response)
