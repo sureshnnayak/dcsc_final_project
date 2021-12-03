@@ -107,7 +107,7 @@ def openprice():
             #redis_response = "{'date': '2021-12-02', 'result': '778.45'}"
             #redis_response.add("{'date': '2021-12-02', 'result': '778.45'}")
             response = get_data(stockName)
-            log_info("response created" + response)
+            log_info("response created" + str(response))
     else:
         log_info("Open Price requested for Stock" + stockName)
 
