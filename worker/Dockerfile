@@ -1,8 +1,8 @@
-FROM python:3.8
+FROM python
 
 
 RUN /usr/local/bin/python -m pip install --upgrade pip
-RUN  pip3 install flask pika redis requests jsonpickle Pillow
+RUN  pip install flask pika redis requests jsonpickle Pillow numpy panda keras tensorflow
 WORKDIR /srv
 COPY  worker-server-all.py /srv
 COPY  INFY.csv /srv
