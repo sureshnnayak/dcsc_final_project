@@ -13,6 +13,8 @@ import time
 from datetime import date 
 
 
+stock_list = ["SBIN", "TCS", "INFY"]
+
 ##
 ## Configure test vs. production
 ##
@@ -83,24 +85,36 @@ def get_data(stockName):
 def openprice():
     r = request 
     message = json.loads(r.data)
+    
     print(message)
     #message = message['stockname']
     #print(message[0])
     stockName =  message['stockName']
-    print("stock name: ", stockName)
-    
-    response = get_data(stockName)
-    if response :
-        print("Elenemt found")
-  
-    else:
-        rabbitMQChannel.basic_publish(
-            exchange='toworker', routing_key=toWorkerKey, body=str(message))
-        # Waiting for StockPrediction model to load the result to Redis database.    
-        time.sleep(75)
-        #redis_response = "{'date': '2021-12-02', 'result': '778.45'}"
-        #redis_response.add("{'date': '2021-12-02', 'result': '778.45'}")
+    log_info("Open Price requested for Stock" + stockName)
+    if stockName in stock_list:
+        
+        print("stock name: ", stockName)
         response = get_data(stockName)
+    
+        if response :
+            log_info("returning the Value found in the database")
+    
+        else:
+            rabbitMQChannel.basic_publish(
+                exchange='toworker', routing_key=toWorkerKey, body=str(message))
+            # Waiting for StockPrediction model to load the result to Redis database.    
+            time.sleep(75)
+            #redis_response = "{'date': '2021-12-02', 'result': '778.45'}"
+            #redis_response.add("{'date': '2021-12-02', 'result': '778.45'}")
+            response = get_data(stockName)
+            log_info("response created" + response)
+    else:
+        log_info("Open Price requested for Stock" + stockName)
+
+        response = {"Error" : "Stock type not supported"}
+        log_debug("Error : Stock type not supported")
+        
+    
     
   
     response_pickled = jsonpickle.encode(response)
@@ -108,7 +122,7 @@ def openprice():
 
 
 # start flask app
-app.run(host="0.0.0.0", port=5001)
+app.run(host="0.0.0.0", port=5002)
 
 ##
 ## Your code goes here..
