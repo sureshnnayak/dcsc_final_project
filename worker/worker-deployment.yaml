@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: sureshnnayak24/sentiment-worker:latest
+        image: sureshnnayak24/stockprediction-worker
         env:
         - name: REDIS_HOST
           value: redis
