@@ -61,6 +61,9 @@ redisClient = redis.Redis(host=redisHost, port=6379, db=0)
 
 rabbitMQChannel.queue_declare(queue='toWorker')
 rabbitMQChannel.exchange_declare(exchange='logs', exchange_type='topic')
+
+#routing keys  
+toWorkerKey = "stockPredictionKey"
 infoKey = "hostname.worker.info"
 debugKey = "hostname.worker.debug"
 def log_debug(message, key=debugKey):
@@ -80,7 +83,6 @@ def log_info(message, key=infoKey):
 
 def stockPrediction(stockType, currentOpenValue):
     #setting the training data - There are three types of training data - StockTypes 1,2,3
-
     TrainFileName1 = stockType1+".csv"
     TrainFileName2 = stockType2+".csv"
     TrainFileName3 = stockType3+".csv"
@@ -99,12 +101,14 @@ def stockPrediction(stockType, currentOpenValue):
     elif(stockType == stockType3):
         training_data = training_data3
     else:
-        training_data =training_data
+        log_debug("Unknown StockName specified. Please send stockName as - INFY/SBIN/TCS")
+        log_info("Stock Prediction attempted for unknown stockName. Please retry for stockName - INFY/SBIN/TCS")
+        return 0
 
     training_data.shape
     training_data = training_data.iloc[:, 1:2]
     print("Training data raw: \n", training_data)
-    print("Type of training data: ", type(training_data))
+    #print("Type of training data: ", type(training_data))
     training_data.shape
     training_data.head()
     mm = MinMaxScaler(feature_range = (0, 1))
@@ -118,7 +122,7 @@ def stockPrediction(stockType, currentOpenValue):
 
     #print(x_train.shape)
     #print(y_train.shape)
-    x_train = np.reshape(x_train, (499, 1, 1))
+    x_train = np.reshape(x_train, ((length-1), 1, 1))
 
     #print(x_train.shape)
 
@@ -156,10 +160,6 @@ def stockPrediction(stockType, currentOpenValue):
 #myCall = stockPrediction("Stock_type")
 #print("Predicted value: \n", myCall)
 
-
-#routing key  
-toWorkerKey = "stockPredictionKey"
-
 rabbitMQChannel.exchange_declare(exchange='toworker', exchange_type='direct')
 result = rabbitMQChannel.queue_declare(queue=toWorkerKey, exclusive=True)
 queue_name = result.method.queue
@@ -174,25 +174,26 @@ def callback(ch, method, properties, body):
     print(" [x] %r:%r" % (method.routing_key, message))
     # push the content to 
     msg1 = ast.literal_eval(message)
-    #message = json.loads(message)
     print("type of message after json loads: ", type(message))
     stock = msg1["stockName"]
     print("stock name: ", stock)
     openPrice = msg1["price"]
     print("current open price: ", openPrice)
+    # Calling Stock Prediction function that returns the prediction of next day open price of given stock.
     result = stockPrediction(stock, openPrice)
-    print(result)
-    resDict = dict()
-    resDict["currentDate"] = str(currentDate)
-    resDict["predictedValueNextDay"] = str(result)
-    myStr = str(resDict)
-    time.sleep(3)
-    # Adding current date and predicted value for next day as one entry to particular type of set named 'stockType' in Redis
-    redisClient.sadd(stock, myStr)
+    if result != 0:
+        print(result)
+        resDict = dict()
+        resDict["currentDate"] = str(currentDate)
+        resDict["predictedValueNextDay"] = str(result)
+        myStr = str(resDict)
+        time.sleep(3)
+        # Adding current date and predicted value for next day as one entry to particular type of set named 'stockType' in Redis
+        redisClient.sadd(stock, myStr)
 
-    # Printing set entries of a particular stocktype
-    print("Contents of the Redis set:")
-    print(redisClient.smembers(stock))
+        # Printing set entries of a particular stocktype
+        print("Contents of the Redis set:")
+        print(redisClient.smembers(stock))
 
 
 print(' [*] Waiting for logs. To exit press CTRL+C')
