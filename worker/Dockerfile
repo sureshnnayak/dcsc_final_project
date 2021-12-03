@@ -14,4 +14,4 @@ COPY  SBIN.csv /srv
 #ENV	FLASK_PORT 5000
 EXPOSE 5001
 
-CMD	["python3", "worker-server-all.py"]
+CMD	["python", "worker-server-all.py"]
