@@ -15,7 +15,7 @@ spec:
       containers:
       - name: master
         imagePullPolicy: Always
-        image: sureshnnayak24/sentiment-rest
+        image: anushab97/stockprediction-rest:v1
         env:
         - name: REDIS_HOST
           value: redis
