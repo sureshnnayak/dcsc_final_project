@@ -1,11 +1,11 @@
 FROM python:3.9.1
 
-
 RUN /usr/local/bin/python -m pip install --upgrade pip
-RUN  pip install flask pika redis requests jsonpickle Pillow numpy panda keras 
-RUN pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl 
+RUN  pip install flask pika redis requests jsonpickle Pillow numpy pandas keras sklearn
+RUN pip install tensorflow
+# RUN pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl 
 WORKDIR /srv
-COPY  worker-server-all.py /srv
+COPY  worker-server.py /srv
 COPY  INFY.csv /srv
 COPY  TCS.csv /srv
 COPY  SBIN.csv /srv
@@ -16,4 +16,4 @@ COPY  SBIN.csv /srv
 EXPOSE 5001
 
 
-CMD	["python3", "worker-server-all.py"]
+CMD	["python3", "worker-server.py"]
