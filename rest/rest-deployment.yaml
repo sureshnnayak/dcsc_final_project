@@ -16,6 +16,7 @@ spec:
       - name: master
         imagePullPolicy: Always
         image: anushab97/stockprediction-rest:v1
+
         env:
         - name: REDIS_HOST
           value: redis

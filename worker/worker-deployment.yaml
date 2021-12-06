@@ -15,6 +15,7 @@ spec:
       containers:
       - name: worker
         image: anushab97/stockprediction-worker:v7
+
         env:
         - name: REDIS_HOST
           value: redis
