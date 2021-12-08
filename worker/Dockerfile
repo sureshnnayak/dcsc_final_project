@@ -2,7 +2,7 @@ FROM python:3.9.1
 
 RUN /usr/local/bin/python -m pip install --upgrade pip
 RUN  pip install flask pika redis requests jsonpickle Pillow numpy pandas keras sklearn
-RUN pip install tensorflow
+RUN pip3 install tensorflow
 # RUN pip install https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.8.0-py3-none-any.whl 
 WORKDIR /srv
 COPY  worker-server.py /srv

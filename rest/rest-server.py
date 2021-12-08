@@ -18,8 +18,8 @@ stock_list = ["SBIN", "TCS", "INFY"]
 ##
 ## Configure test vs. production
 ##
-redisHost = os.getenv("REDIS_HOST") or "localhost"
-rabbitMQHost = os.getenv("RABBITMQ_HOST") or "localhost"
+redisHost = os.getenv("REDIS_HOST") or "redis"
+rabbitMQHost = os.getenv("RABBITMQ_HOST") or "rabbitmq"
 
 redisClient = redis.Redis(host=redisHost, port=6379, db=0)
 print(f"Connecting to rabbitmq({rabbitMQHost}) and redis({redisHost})")
@@ -81,6 +81,14 @@ def get_data(stockName):
             print(response)
     return response
 
+@app.route('/api/add/<int:a>/<int:b>', methods=['GET', 'POST'])
+
+def add(a,b):
+    response = {'sum' : str( a + b)}
+    print("hello")
+    response_pickled = jsonpickle.encode(response)
+    return Response(response=response_pickled, status=200, mimetype="application/json")
+
 @app.route('/api/openprice', methods=[ 'POST'])
 def openprice():
     r = request 
@@ -120,7 +128,7 @@ def openprice():
     response_pickled = jsonpickle.encode(response)
     return Response(response=response_pickled, status=200, mimetype="application/json")
 
-
+ 
 @app.route('/', methods=['GET'])
 def hello():
     return Response(response='<h1> Sentiment Server</h1><p> Use a valid endpoint </p>', status=200)
