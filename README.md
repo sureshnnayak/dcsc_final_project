@@ -1,8 +1,8 @@
 # dcsc_final_project
 
 ## Team members:
-Anusha Basavaraja
-Suresh N Nayak
+Anusha Basavaraja (anba9017@colorado.edu)
+Suresh N Nayak (suna7873@colorado.edu)
 
 ## Project Brief:
 Deploying our project "Stock Open price Prediction as a Service" in kubernetes using components - REST front-end, RabbitMQ messaging, Redis database.
